@@ -2,11 +2,14 @@ import socket
 import sys
 import json
 import numpy as np
+from datetime import datetime
+import time
+
 
 user_id = "team-jj"
 
 # TODO: Set label_name to the activity you are doing
-label_name = "vigil"
+label_name = "sleep"
 # Vigil, Sleeping
 #
  
@@ -94,7 +97,9 @@ try:
                     x=data['data']['x']
                     y=data['data']['y']
                     z=data['data']['z']
-                    labelled_data.append([t, x, y, z, label_index])
+                    t = time.localtime()
+                    current_time = time.strftime("%H:%M:%S", t)
+                    labelled_data.append([t, x, y, z, label_index,current_time])
                     
                     print("Received Accelerometer data with label " + str(label_index))
                     
