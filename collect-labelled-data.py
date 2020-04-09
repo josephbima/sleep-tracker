@@ -97,9 +97,11 @@ try:
                     x=data['data']['x']
                     y=data['data']['y']
                     z=data['data']['z']
-                    t = time.localtime()
-                    current_time = time.strftime("%H:%M:%S", t)
-                    labelled_data.append([x, y, z, label_index,current_time])
+                    
+                    current_time = time.localtime()
+                    current_time = time.strftime("%H:%M:%S", current_time)
+
+                    labelled_data.append([current_time,x, y, z, label_index])
                     
                     print("Received Accelerometer data with label " + str(label_index))
                     
