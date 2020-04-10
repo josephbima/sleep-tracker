@@ -101,7 +101,7 @@ try:
                     current_time = time.localtime()
                     current_time = time.strftime("%H:%M:%S", current_time)
 
-                    labelled_data.append([current_time,x, y, z, label_index])
+                    labelled_data.append([t,x, y, z, label_index,current_time])
                     
                     print("Received Accelerometer data with label " + str(label_index))
                     
