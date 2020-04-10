@@ -6,7 +6,7 @@ x = []
 y = []
 z = []
 
-with open('sleep-data.csv','r') as csvfile:
+with open('/Users/johanthomassajan/Downloads/sleep-tracker-328/Sleeping Log + Data/Johan/sleep-johan-1-data.csv','r') as csvfile:
     plots = csv.reader(csvfile, delimiter=',')
     for row in plots:
         t.append(row[0])
