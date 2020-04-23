@@ -9,7 +9,7 @@ import time
 user_id = "team-jj"
 
 # TODO: Set label_name to the activity you are doing
-label_name = "sleep-joe-2"
+label_name = "vigil-1"
 # Vigil, Sleeping
 #
  
@@ -103,7 +103,7 @@ try:
 
                     labelled_data.append([t,x, y, z, label_index,current_time])
                     
-                    print("Received Accelerometer data with label " + str(label_index))
+                    print("Received Accelerometer data with label " + str(label_index)+str(datetime.now()))
                     
             sys.stdout.flush()
         except KeyboardInterrupt: 
