@@ -28,23 +28,15 @@ print(y[0])
 print(z[0])
 print(i[0])
 
-with open(sys.argv[1], 'w', newline='') as file:
-    writer = csv.writer(file)
-    for a in range(len(t)):
-        writer.writerow([t[a],x[a],y[a],z[a],i[a]])
 
-print("Complete")
+plt.plot(t,x, label='X axis')
+plt.plot(t,y, label='Y axis')
+plt.plot(t,z, label='Z axis')
 
-
-
-# plt.plot(t,x, label='X axis')
-# plt.plot(t,y, label='Y axis')
-# plt.plot(t,z, label='Z axis')
-
-# plt.xlabel('Time')
-# plt.ylabel('Axis')
-# plt.title('Axis/Time Graph')
-# plt.legend()
-# plt.show()
-# plt.savefig('x.png')
+plt.xlabel('Time')
+plt.ylabel('Axis')
+plt.title('Axis/Time Graph')
+plt.legend()
+plt.show()
+plt.savefig('x.png')
 
