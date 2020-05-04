@@ -9,7 +9,7 @@ import time
 user_id = "team-jj"
 
 # TODO: Set label_name to the activity you are doing
-label_name = "vigil-1"
+label_name = "vigil-simul-pocket-2"
 # Vigil, Sleeping
 #
  
@@ -18,8 +18,11 @@ TODO: Set label_index to the activity index, ranging from 0 to (num_of_activitie
 Your classifier will return the index of the activity and you will get the label name
 from this index in activity-recognition.py
 """
-
+# Vigil
 label_index = 0
+
+# # Sleep
+# label_index = 1
 
 #################   Begin Server Connection Code  ####################
 
