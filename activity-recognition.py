@@ -15,13 +15,21 @@ from features import extract_features # make sure features.py is in the same dir
 from util import reorient, reset_vars
 from datetime import datetime
 import time
+from prettytable import PrettyTable
+
 
 # TODO: Replace the string with your user ID
 user_id = "team-jj"
 # TODO: list the class labels that you collected data for in the order of label_index (defined in collect-labelled-data.py)
 class_names = ["vigil", "sleeping"] #...
 
-count = 0
+send_socket = None
+
+hourly_array = []
+all_time_array = []
+
+activity_detection_table = PrettyTable()
+activity_detection_table_columns = ['Activity','Timestamp']
 
 # Loading the classifier that you saved to disk previously
 with open('classifier.pickle', 'rb') as f:
@@ -30,12 +38,76 @@ with open('classifier.pickle', 'rb') as f:
 if classifier == None:
     print("Classifier is null; make sure you have trained it!")
     sys.exit()
+
     
 def onActivityDetected(activity):
     """
     Notifies the user of the current activity
     """
-    print("Detected activity: " + activity + " Time: " + str(datetime.now()))
+    global hourly_array, all_time_array, activity_detection_table
+
+    time = datetime.now()
+
+    act = { "activity":activity, "time": str(time) }
+
+    hourly_array.append(act)
+
+    # print("Pushed ")
+    # print(act)
+
+    data = []
+
+    # if it has been an hour, count how many sleep and vigil activities detected
+    HOUR_PERIOD =  12
+    QUARTER_HOUR_PERIOD = 3
+
+    # Change to HOUR_PERIOD to use hour periods analysis, using 15 minute periods for testing purpouses only
+    if(len(hourly_array) == QUARTER_HOUR_PERIOD):
+
+        sleep_count = 0
+        vigil_count = 0
+
+        for e in hourly_array:
+            if e["activity"] == "sleeping":
+                sleep_count = sleep_count + 1
+            else:
+                vigil_count = vigil_count + 1
+            
+            data.append(e)
+        
+        # print("Sleep count detected: %s \n Vigil count detected: %s", (sleep_count,vigil_count))
+        
+        hourly_array = []
+
+        sleep_percentage = sleep_count/(sleep_count+vigil_count)
+
+        sleep_percentage_str = "{:.2%}".format(sleep_percentage)
+
+        sleeping_description = ''
+
+        threshold = 0.10
+
+        if sleep_percentage > 0.75-threshold:
+            sleeping_description = "Sleeping with minimal movement"
+        elif sleep_percentage > 0.55-threshold and sleep_percentage < 0.75 - threshold:
+            sleeping_description = "Sleeping with a lot of movements"
+        elif sleep_percentage > 0.40 - threshold and sleep_percentage <  0.55 - threshold:
+            sleeping_description = "A lot of movement, possibly not asleep or only partially"
+        elif sleep_percentage < 0.4 - threshold:
+            sleeping_description = "A lot of movement, most likely not asleep"
+        
+
+        sleep_analysis = {"sleep_count": sleep_count, "vigil_count": vigil_count, "sleep_percentage": sleep_percentage_str, "sleep_description": sleeping_description, "sleep_data": data}
+
+        # print("Pushing to all_time", sleep_analysis)
+
+        all_time_array.append(sleep_analysis)
+    
+
+    activity_detection_table.add_row([activity,time.strftime('%H:%M:%S, %A - %d %M %Y')])
+    print(activity_detection_table)
+
+    # print("Detected activity: " + activity + " Time: " + str(time))
 
 def predict(window):
     """
@@ -72,6 +144,30 @@ receive_socket.settimeout(1.0)
 msg_request_id = "ID"
 msg_authenticate = "ID,{}\n"
 msg_acknowledge_id = "ACK"
+
+def create_send_socket():
+    send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    send_socket.connect(("none.cs.umass.edu", 9999))
+    print("Authenticating user for receiving data...")
+    sys.stdout.flush()
+    authenticate(send_socket)
+    return send_socket
+
+def send_message(tag, data):
+    """
+    Notifies the client.
+    
+    For example, to send reps back to the phone, call `send_message('REP', timestamp)`
+    when your algorithm detects a repetition.
+		
+		Make sure you first create a send socket with `send_socket = create_send_socket()`
+		in the main program.
+    """
+    global send_socket
+    json_msg = ''
+    json_msg = json.dumps({'user_id' : user_id, 'sensor_type' : 'SENSOR_SERVER_MESSAGE', 'message' : tag, 'data': data}) + '\n'
+    json_msg = json_msg.encode('utf-8')
+    send_socket.send(json_msg)
 
 def authenticate(sock):
     """
@@ -110,17 +206,27 @@ def authenticate(sock):
 
 try:
 
+    
+
     print("Authenticating user for receiving data...")
     sys.stdout.flush()
     authenticate(receive_socket)
     
     print("Successfully connected to the server! Waiting for incoming data...")
+
     sys.stdout.flush()
+
+    global time_activated
+
+    time_activated = datetime.now()
+
+
+    print("Time activated: ", time_activated.strftime('%H:%M:%S, %A - %d, %m %Y'))
         
     previous_json = ''
     
     sensor_data = []
-    offset = 2
+    offset = 1
     mins = 5
     window_size = 25 * 60 * offset * mins # 5 minutes assuming 25 Hz sampling rate
     step_size = window_size # no overlap
@@ -173,6 +279,42 @@ try:
         except KeyboardInterrupt: 
             # occurs when the user presses Ctrl-C
 
+            # Get the end time and print activity length
+            end_time = datetime.now()
+
+            length = end_time - time_activated
+
+            length_str = str(length).split('.', 2)[0]
+            
+            print('\n Activity Length: ',length_str)
+
+            # Print table
+            all_time_output = PrettyTable()
+
+            column_names = ['Period','Sleep Count', 'Vigil Count', 'Sleep Percentage','Description']
+
+            keys = ["sleep_count","vigil_count","sleep_percentage","sleep_description"]
+
+            all_time_output.add_column(column_names[0],list(range(1, len(all_time_array)+1)))
+
+            for x in range(1,len(column_names)):
+                data = []
+                key = ""
+                key = keys[x-1]
+                for d in all_time_array:
+                    data.append(d[key])
+                all_time_output.add_column(column_names[x],data)
+
+            if(len(all_time_array) == 0):
+                print("Not enough data collected yet")
+
+            print(all_time_output)
+
+
+            # send_socket = create_send_socket()
+
+            # send_message('STEP', 'Hey! > ')
+
             print("User Interrupt. Quitting...")
             break
         except Exception as e:
@@ -184,6 +326,11 @@ try:
             pass
 except KeyboardInterrupt: 
     # occurs when the user presses Ctrl-C
+
+    send_socket = create_send_socket()
+
+    send_message('STEP', 'Hey!')
+
     print("User Interrupt. Qutting...")
 finally:
     print('closing socket for receiving data')
