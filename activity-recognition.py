@@ -311,9 +311,9 @@ try:
             print(all_time_output)
 
 
-            # send_socket = create_send_socket()
+            send_socket = create_send_socket()
 
-            # send_message('STEP', 'Hey! > ')
+            send_message('STEP', 'Hey! > ')
 
             print("User Interrupt. Quitting...")
             break

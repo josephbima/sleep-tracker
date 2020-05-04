@@ -70,7 +70,6 @@ sampling_rate = n_samples / time_elapsed_seconds
 
 # TODO: list the class labels that you collected data for in the order of label_index (defined in collect-labelled-data.py)
 class_names = ["vigil", "sleeping"] #...
-# class_names = ["sitting", "standing","walking"] #...
 
 
 print("Extracting features and labels for window size {} and step size {}...".format(window_size, step_size))
@@ -119,8 +118,8 @@ using predicted labels and ground truth values. Print the accuracy, precision an
 for each fold.
 """
 total_accuracy = 0.0
-total_precision = [0.0, 0.0]
-total_recall = [0.0, 0.0]
+total_precision = 0.0
+total_recall = 0.0
 
 # Iterate over the cv and fit the decision tree using the training set
 # https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html
@@ -149,53 +148,9 @@ for i, (train_index, test_index) in enumerate(cv.split(X, Y)):
 	total_recall += recall
    
 print("The average accuracy is {}".format(total_accuracy/10.0))  
-print("The average precision is {}".format(total_precision/10.0))    
-print("The average recall is {}".format(total_recall/10.0))  
+print("The average precision is {}".format(total_precision/10.0))
+print("The average recall is {}".format(total_recall/10.0))
 
-# REGULAR TREE
-
-# for train_index, test_index in cv.split(X,Y):
-#     print("TRAIN:", train_index, "TEST:", test_index)
-#     X_train, X_test = X[train_index], X[test_index]
-#     Y_train, Y_test = Y[train_index], Y[test_index]
-
-#     # Instantiate the classifier
-#     tree = DecisionTreeClassifier(criterion="entropy", max_depth=3)
-
-#     tree = tree.fit(X_train,Y_train) 
-
-#     y_pred = tree.predict(X_test)
-
-#     conf = confusion_matrix(Y_test, y_pred)
-
-#     print("Conf", conf)
-
-#     truePositive = conf[1][1]
-#     trueNegative = conf[0][0]
-#     falsePositive = conf[0][1]
-#     falseNegative = conf[1][0]
-    
-
-#     # TODO: calculate and print the average accuracy, precision and recall values over all 10 folds
-
-#     averageAccuracy = accuracy_score(Y_test, y_pred)
-
-#     precision = truePositive / (truePositive + falsePositive)
-#     recall = truePositive / (truePositive + falseNegative)
-#     print("Average Accuracy: ",averageAccuracy)
-#     print("Precision: ", precision)
-#     print("Recall: ", recall)   
-
-# TODO: train the decision tree classifier on entire dataset
-# tree = DecisionTreeClassifier(criterion="entropy", max_depth=3)
-# tree = tree.fit(X,Y)
-
-# # TODO: Save the decision tree visualization to disk - replace 'tree' with your decision tree and run the below line
-# export_graphviz(tree, out_file='tree.dot', feature_names = feature_names)
-
-# # TODO: Save the classifier to disk - replace 'tree' with your decision tree and run the below line
-# with open('classifier.pickle', 'wb') as f:
-#     pickle.dump(tree, f)
 
 # Set this to the best model you found, trained on all the data:
 best_classifier = RandomForestClassifier(n_estimators=100)
