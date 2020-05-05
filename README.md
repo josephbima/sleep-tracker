@@ -2,7 +2,7 @@
 
 # Quick Start
 
-Run activity-recognition.py and then turn on the switch on the app
+Run activity-recognition.py and then turn on the accelerometer switch on the app
 
 # Video Demo
 
