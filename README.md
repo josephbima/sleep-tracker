@@ -1,8 +1,8 @@
-# sleep-tracker-328
+# COMPSCI 328 Final Project
 
 # Quick Start
 
-Run activity-recognition.py and then turn on the switch in the app
+Run activity-recognition.py and then turn on the switch on the app
 
 # Project Report
 
