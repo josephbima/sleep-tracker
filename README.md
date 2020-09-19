@@ -25,7 +25,7 @@ The problem with this approach is obviously the fact that we are not getting ‘
 
 ![Simulated sleep data and simulated vigil data](https://miro.medium.com/max/1400/1*Oevm0paEZ3jpepyh2KZLQw.png)
 
-##Machine Learning
+## Machine Learning
 
 So now that we have all our data, it is time to do the fun machine learning stuff and train our model to predict if someone is sleeping or not. But before that, we made sure to remove the noise in our datas by applying a **butter filter**.
 
